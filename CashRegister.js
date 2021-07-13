@@ -8,6 +8,7 @@ function checkCashRegister(price, cash, cid) {
     let change = [];
     let status = "INSUFFICIENT_FUNDS";
     let moneyToReturn = cash*100 - price*100; // price of product - cash customer gave = return 
+    let moneyToReturnBackUp = moneyToReturn
     let isCashRegisterEmpty = false; // assume that cash register is not empty
 
     // check if cash register is empty
@@ -15,6 +16,13 @@ function checkCashRegister(price, cash, cid) {
     while(cidIndex >= 0){
         if (cid[cidIndex][1] === 0){
             isCashRegisterEmpty = true // if empty, change variable to true
+        }else{ // even if one value is not empty change to false and break
+            if(cid[cidIndex][1] === moneyToReturn/100){
+                console.log("CLOSED MAN",moneyToReturn/100,cid[cidIndex][1])
+                status = "CLOSED"
+            }
+            isCashRegisterEmpty = false
+            break
         }
         cidIndex -= 1
     }
@@ -25,13 +33,8 @@ function checkCashRegister(price, cash, cid) {
             let moneyName = USD[i][0];
             let moneyValue = USD[i][1];
 
-            // console.log("moneyToReturn",moneyToReturn)
-
             if(moneyToReturn - moneyValue > 0){
                 // what to give? penny,quarter or what?
-
-                // console.log(moneyName,moneyValue,moneyToReturn / moneyValue)
-
                 // do we have enough to give?
                 // looping through CID
                 for (let i = cid.length - 1; i >= 0; i--){
@@ -56,24 +59,15 @@ function checkCashRegister(price, cash, cid) {
                                 moneyToReturn -= howMuchToGive
                             }
 
-                        // console.log(
-                        //     "cid money value",Math.ceil(cidMoneyValue*100),
-                        //     "money to return",moneyToReturn,
-                        //     Math.ceil(cidMoneyValue*100) - moneyToReturn)
-
-
-                            // change.push([moneyName,(moneyValue*moneyToReturn / moneyValue)/100])
-
-                            // cidMoneyValue -= (moneyValue*moneyToReturn / moneyValue)/100
-                            // moneyToReturn -= moneyValue*moneyToReturn / moneyValue
-
                             console.log("moneyToReturn",moneyToReturn)
 
                             if (moneyToReturn === 0) {
-                                status = "OPEN"
-                                return {status,change}
+                                if (status === "CLOSED"){
+                                    change = cid
+                                }else{
+                                    status = "OPEN"
+                                }
                             }
-
                         }
                     }
                 }
@@ -83,20 +77,28 @@ function checkCashRegister(price, cash, cid) {
         }
     }
 
+    if (status === "INSUFFICIENT_FUNDS"){
+        change = []
+    }
+
     return {status,change}
 }
 
-let i = checkCashRegister(3.26, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]])
+let i = checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]])
 
 console.log(i)
 
-/*
-price = price of product 
-cash = cash given by customer 
-cid = the money in counter
+console.log(checkCashRegister(19.5, 20, [["PENNY", 0.01], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 1], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]))
 
-need to return an object with 
-1. {status: "CLOSED", change: [cid]} - if no change to be given
-2. {status: "INSUFFICIENT_FUNDS", change: []} - if change due is more then cid or can give exact funds
-3. {status: "OPEN", change: [...]} - change due in coins and bills, sorted from highest to lowest order as the value of change
+console.log(checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]))
+
+/*
+    price = price of product 
+    cash = cash given by customer 
+    cid = the money in counter
+
+    need to return an object with 
+    1. {status: "CLOSED", change: [cid]} - if no change to be given
+    2. {status: "INSUFFICIENT_FUNDS", change: []} - if change due is more then cid or can give exact funds
+    3. {status: "OPEN", change: [...]} - change due in coins and bills, sorted from highest to lowest order as the value of change
 */
