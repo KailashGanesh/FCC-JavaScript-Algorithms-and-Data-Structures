@@ -8,14 +8,14 @@ function checkCashRegister(price, cash, cid) {
     let change = [];
     let status = "INSUFFICIENT_FUNDS";
     let moneyToReturn = cash*100 - price*100; // price of product - cash customer gave = return 
-    let isCashRegisterEmpty = false;
+    let isCashRegisterEmpty = false; // assume that cash register is not empty
 
+    // check if cash register is empty
     let cidIndex = cid.length - 1;
     while(cidIndex >= 0){
         if (cid[cidIndex][1] === 0){
-            isCashRegisterEmpty = true
+            isCashRegisterEmpty = true // if empty, change variable to true
         }
-
         cidIndex -= 1
     }
 
@@ -25,17 +25,59 @@ function checkCashRegister(price, cash, cid) {
             let moneyName = USD[i][0];
             let moneyValue = USD[i][1];
 
-            // console.log("log",moneyName, Math.ceil(moneyToReturn / moneyValue))
-            let valid = Math.round(moneyToReturn / moneyValue);
+            // console.log("moneyToReturn",moneyToReturn)
 
-            if( valid > 1){
-                change.push([moneyName,(moneyValue*valid)/100]);
-                status = "OPEN"
-                moneyToReturn -= moneyValue*valid
-                console.log(moneyName,moneyValue*valid,moneyValue,valid)
-                if (moneyToReturn === 0){
-                    return {status,change}
+            if(moneyToReturn - moneyValue > 0){
+                // what to give? penny,quarter or what?
+
+                // console.log(moneyName,moneyValue,moneyToReturn / moneyValue)
+
+                // do we have enough to give?
+                // looping through CID
+                for (let i = cid.length - 1; i >= 0; i--){
+                    let cidMoneyName = cid[i][0]
+                    let cidMoneyValue = cid[i][1]*100
+
+                    if (cidMoneyName === moneyName){ // make sure we on the same money name
+
+                        if (Math.ceil(cidMoneyValue)  !== 0){
+
+                            if (moneyToReturn > cidMoneyValue){
+                                console.log("grater",cidMoneyName,cidMoneyValue,moneyToReturn)
+
+                                moneyToReturn -= cidMoneyValue
+                                change.push([moneyName,cidMoneyValue/100])
+                            } else {
+                                console.log([moneyName,(moneyValue*moneyToReturn / moneyValue)/100])
+
+                                let howMuchToGive = (Math.floor(moneyToReturn / moneyValue)*moneyValue)
+                                change.push([moneyName,howMuchToGive/100])
+
+                                moneyToReturn -= howMuchToGive
+                            }
+
+                        // console.log(
+                        //     "cid money value",Math.ceil(cidMoneyValue*100),
+                        //     "money to return",moneyToReturn,
+                        //     Math.ceil(cidMoneyValue*100) - moneyToReturn)
+
+
+                            // change.push([moneyName,(moneyValue*moneyToReturn / moneyValue)/100])
+
+                            // cidMoneyValue -= (moneyValue*moneyToReturn / moneyValue)/100
+                            // moneyToReturn -= moneyValue*moneyToReturn / moneyValue
+
+                            console.log("moneyToReturn",moneyToReturn)
+
+                            if (moneyToReturn === 0) {
+                                status = "OPEN"
+                                return {status,change}
+                            }
+
+                        }
+                    }
                 }
+
             }
             i -= 1
         }
@@ -44,7 +86,7 @@ function checkCashRegister(price, cash, cid) {
     return {status,change}
 }
 
-let i = checkCashRegister(19.5, 20, [["PENNY", 0.01], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]])
+let i = checkCashRegister(3.26, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]])
 
 console.log(i)
 
