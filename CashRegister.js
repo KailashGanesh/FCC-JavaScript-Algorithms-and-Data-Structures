@@ -45,21 +45,23 @@ function checkCashRegister(price, cash, cid) {
 
                         if (Math.ceil(cidMoneyValue)  !== 0){
 
-                            if (moneyToReturn > cidMoneyValue){
-                                console.log("grater",cidMoneyName,cidMoneyValue,moneyToReturn)
+                            if (moneyToReturn > cidMoneyValue){ 
 
+                                // check if money value is small then money to return
+                                // if yes then give the full value of moneyValue in CID
+
+                                // subtracting from moneyToReturn helps us know exactly how much more needs to be given
                                 moneyToReturn -= cidMoneyValue
                                 change.push([moneyName,cidMoneyValue/100])
                             } else {
-                                console.log([moneyName,(moneyValue*moneyToReturn / moneyValue)/100])
-
+                                // moneyToReturn is small then moneyValue 
+                                // so find out how many to give from this moneyName (one, ten or penny ect)
                                 let howMuchToGive = (Math.floor(moneyToReturn / moneyValue)*moneyValue)
                                 change.push([moneyName,howMuchToGive/100])
 
-                                moneyToReturn -= howMuchToGive
+                                moneyToReturn -= howMuchToGive 
                             }
 
-                            console.log("moneyToReturn",moneyToReturn)
 
                             if (moneyToReturn === 0) {
                                 if (status === "CLOSED"){
@@ -87,14 +89,3 @@ function checkCashRegister(price, cash, cid) {
 let i = checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]])
 
 console.log(i)
-
-/*
-    price = price of product 
-    cash = cash given by customer 
-    cid = the money in counter
-
-    need to return an object with 
-    1. {status: "CLOSED", change: [cid]} - if no change to be given
-    2. {status: "INSUFFICIENT_FUNDS", change: []} - if change due is more then cid or can give exact funds
-    3. {status: "OPEN", change: [...]} - change due in coins and bills, sorted from highest to lowest order as the value of change
-*/
